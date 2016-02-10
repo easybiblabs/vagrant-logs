@@ -31,8 +31,11 @@ Vagrant.configure("2") do |config|
   # list of log files
   config.vagrant_logs.log_files = ['/var/log/*log']
 
-  # number of lines to print
+  # number of lines to log
   config.vagrant_logs.lines = 5
+
+  # list of locally checked out repositories for which the current revision should be logged
+  config.vagrant_logs.repositories_to_check = ['~/Sites/easybib/cookbooks', '~/projects/ies/vagrant-logs']
 end
 ```
 

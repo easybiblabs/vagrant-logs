@@ -6,15 +6,17 @@ module VagrantPlugins
       end
 
       def execute
+        result = {}
+
         with_target_vms(@argv, single_target: true) do |vm|
-          result = {}
-
           prepare_log_file_names(vm)
-
           result[:log_files] = fetch_log_files(vm)
 
-          print_result(result)
+          result[:repository_revisions] = fetch_repository_revisions(vm)
         end
+
+
+        print_result(result)
 
         return 0
       end
@@ -31,6 +33,7 @@ module VagrantPlugins
 
         log_files.delete_if do |log_file|
           if log_file.include?('*')
+            # TODO Handle errors
             vm.communicate.sudo("ls -1 #{log_file}") do |type, data|
               if type == :stdout
                 expanded_file_names << data.split(/[\r\n]+/)
@@ -48,6 +51,7 @@ module VagrantPlugins
         result = {}
 
         vm.config.vagrant_logs.log_files.each do |log_file|
+          # TODO Handle errors
           vm.communicate.sudo("tail -#{vm.config.vagrant_logs.lines} #{log_file}") do |type, data|
             if type == :stdout
               result[log_file] = data.split(/[\r\n]+/)
@@ -59,9 +63,18 @@ module VagrantPlugins
       end
 
       def print_result(result)
+        print_repository_revisions(result[:repository_revisions])
         print_log_files_result(result[:log_files])
       end
 
+      def print_repository_revisions(repository_revisions)
+        puts "Repository revisions\n"
+        puts "--------------------\n"
+
+        repository_revisions.each do |repository, revision|
+          puts "#{repository}: #{revision}\n"
+        end
+      end
       def print_log_files_result(log_files_results)
         puts "Log files\n"
         puts "---------\n"
@@ -79,7 +92,15 @@ module VagrantPlugins
         end
       end
 
+      def fetch_repository_revisions(vm)
+        result = {}
+
+        vm.config.vagrant_logs.repositories_to_check.each do |repository|
+          # TODO Handle errors
+          result[repository] = `(cd #{repository} && git rev-parse HEAD)`
         end
+
+        result
       end
     end
   end
