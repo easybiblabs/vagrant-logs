@@ -15,6 +15,8 @@ module VagrantPlugins
           result[:repository_revisions] = fetch_repository_revisions(vm)
 
           result[:client_versions] = fetch_client_versions(vm)
+
+          result[:dns_resolution] = fetch_dns_resolution_check(vm)
         end
 
 
@@ -68,14 +70,26 @@ module VagrantPlugins
         print_repository_revisions(result[:repository_revisions])
         print_log_files_result(result[:log_files])
         print_client_versions(result[:client_versions])
+        print_dns_resolution_result(result[:dns_resolution])
       end
 
       def print_client_versions(client_versions)
         puts "Client versions\n"
-        puts "--------------------\n"
+        puts "---------------\n"
 
         client_versions.each do |client, version|
           puts "#{client}: #{version}\n"
+        end
+      end
+
+      def print_dns_resolution_result(dns_resolution)
+        puts "DNS resolution\n"
+        puts "--------------\n"
+
+        if dns_resolution
+          puts "Fine, works.\n"
+        else
+          puts "Doesn't seem to work.\n"
         end
       end
 
@@ -125,6 +139,12 @@ module VagrantPlugins
         end
 
         result
+      end
+
+      def fetch_dns_resolution_check(vm)
+        result = `host -t ns google.com`
+
+        !result.include?('no servers could be reached')
       end
     end
   end
