@@ -142,7 +142,14 @@ module VagrantPlugins
       end
 
       def fetch_dns_resolution_check(vm)
-        result = `host -t ns google.com`
+        result = false
+
+        # TODO Handle errors
+        vm.communicate.sudo("host -t ns google.com") do |type, data|
+          if type == :stdout
+            result = data
+          end
+        end
 
         !result.include?('no servers could be reached')
       end
