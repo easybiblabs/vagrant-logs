@@ -1,0 +1,5 @@
+module VagrantPlugins
+  module CommandLogs
+    VERSION = '0.0.1'
+  end
+end
