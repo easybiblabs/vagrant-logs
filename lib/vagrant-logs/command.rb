@@ -23,15 +23,7 @@ module VagrantPlugins
       protected
 
       def prepare_log_file_names(vm)
-        log_files = vm.config.vagrant_logs.log_files
-
-        if log_files.empty?
-          # Set defaults
-          log_files = %w(/var/log/syslog /var/log/nginx/*log /var/log/php/*log .vagrant.d/data/landrush/log)
-        end
-
-        log_files = expand_log_file_names(log_files, vm)
-        vm.config.vagrant_logs.log_files = log_files
+        vm.config.vagrant_logs.log_files = expand_log_file_names(vm.config.vagrant_logs.log_files, vm)
       end
 
       def expand_log_file_names(log_files, vm)

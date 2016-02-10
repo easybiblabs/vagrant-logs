@@ -10,7 +10,10 @@ module VagrantPlugins
       end
 
       def finalize!
-        @log_files = [] if @log_files == UNSET_VALUE
+        if @log_files == UNSET_VALUE
+          @log_files = %w(/var/log/syslog /var/log/nginx/*log /var/log/php/*log .vagrant.d/data/landrush/log)
+        end
+
         @lines = 50 if @lines == UNSET_VALUE
       end
     end
