@@ -1,6 +1,6 @@
 module VagrantPlugins
   module CommandLogs
-    class Command < ::Vagrant.plugin('2', :command)
+    class Command < Vagrant.plugin('2', :command)
       def self.synopsis
         'Print some logs'
       end
