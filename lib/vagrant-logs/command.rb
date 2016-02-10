@@ -66,12 +66,19 @@ module VagrantPlugins
         puts "Log files\n"
         puts "---------\n"
 
-        log_files_results.each do |filename, log_file_results|
-          puts "#{filename}\n"
-          log_file_results.each do |result|
-            puts "#{result}\n"
+        if log_files_results.nil?
+          puts "Sorry, no log files fetched.\n"
+        else
+          log_files_results.each do |filename, log_file_results|
+            puts "#{filename}\n"
+            log_file_results.each do |result|
+              puts "#{result}\n"
+            end
+            puts "\n\n\n"
           end
-          puts "\n\n\n"
+        end
+      end
+
         end
       end
     end
