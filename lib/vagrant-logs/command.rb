@@ -13,6 +13,8 @@ module VagrantPlugins
           result[:log_files] = fetch_log_files(vm)
 
           result[:repository_revisions] = fetch_repository_revisions(vm)
+
+          result[:client_versions] = fetch_client_versions(vm)
         end
 
 
@@ -65,6 +67,27 @@ module VagrantPlugins
       def print_result(result)
         print_repository_revisions(result[:repository_revisions])
         print_log_files_result(result[:log_files])
+        print_client_versions(result[:client_versions])
+      end
+
+      def print_client_versions(client_versions)
+        puts "Client versions\n"
+        puts "--------------------\n"
+
+        client_versions.each do |client, version|
+          puts "#{client}: #{version}\n"
+        end
+      end
+
+      def fetch_client_versions(vm)
+        result = {}
+
+        vm.config.vagrant_logs.clients_to_check.each do |client|
+          # TODO Handle errors
+          result[client] = `#{client} -v`
+        end
+
+        result
       end
 
       def print_repository_revisions(repository_revisions)
@@ -75,6 +98,7 @@ module VagrantPlugins
           puts "#{repository}: #{revision}\n"
         end
       end
+
       def print_log_files_result(log_files_results)
         puts "Log files\n"
         puts "---------\n"

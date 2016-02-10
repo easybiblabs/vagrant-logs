@@ -36,6 +36,9 @@ Vagrant.configure("2") do |config|
 
   # list of locally checked out repositories for which the current revision should be logged
   config.vagrant_logs.repositories_to_check = ['~/Sites/easybib/cookbooks', '~/projects/ies/vagrant-logs']
+
+  # list of locally available clients to check for their versions
+  config.vagrant_logs.clients_to_check = ['vagrant', 'VBoxManage']
 end
 ```
 
