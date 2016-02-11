@@ -22,7 +22,7 @@ module VagrantPlugins
         @lines = 50 if @lines == UNSET_VALUE
 
         config = Bib::Vagrant::Config.new
-        @repositories_to_check = config.get['cookbook_path'] || [] if @repositories_to_check == UNSET_VALUE
+        @repositories_to_check = [config.get['cookbook_path']] || [] if @repositories_to_check == UNSET_VALUE
 
         @clients_to_check = ['vagrant', 'VBoxManage'] if @clients_to_check == UNSET_VALUE
       end
