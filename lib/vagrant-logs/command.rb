@@ -2,7 +2,7 @@ module VagrantPlugins
   module CommandLogs
     class Command < Vagrant.plugin('2', :command)
       def self.synopsis
-        'Print some logs'
+        'Print some log and information (and upload them to a Gist)'
       end
 
       def execute
@@ -13,14 +13,11 @@ module VagrantPlugins
           result[:log_files] = fetch_log_files(vm)
 
           result[:repository_revisions] = fetch_repository_revisions(vm)
-
           result[:client_versions] = fetch_client_versions(vm)
-
           result[:dns_resolution] = fetch_dns_resolution_check(vm)
         end
 
-
-        print_result(result)
+        print result_to_string(result)
 
         return 0
       end
@@ -66,31 +63,23 @@ module VagrantPlugins
         result
       end
 
-      def print_result(result)
-        print_repository_revisions(result[:repository_revisions])
-        print_log_files_result(result[:log_files])
-        print_client_versions(result[:client_versions])
-        print_dns_resolution_result(result[:dns_resolution])
-      end
+      def log_files_result_to_string(log_files_results)
+        result  = "Log files\n"
+        result += "---------\n"
 
-      def print_client_versions(client_versions)
-        puts "Client versions\n"
-        puts "---------------\n"
-
-        client_versions.each do |client, version|
-          puts "#{client}: #{version}\n"
-        end
-      end
-
-      def print_dns_resolution_result(dns_resolution)
-        puts "DNS resolution\n"
-        puts "--------------\n"
-
-        if dns_resolution
-          puts "Fine, works.\n"
+        if log_files_results.nil?
+          result += "Sorry, no log files fetched.\n"
         else
-          puts "Doesn't seem to work.\n"
+          log_files_results.each do |filename, log_file_results|
+            result += "#{filename}\n"
+            log_file_results.each do |log_file_result|
+              result += "#{log_file_result}\n"
+            end
+            result += "\n\n\n"
+          end
         end
+
+        result
       end
 
       def fetch_client_versions(vm)
@@ -104,30 +93,15 @@ module VagrantPlugins
         result
       end
 
-      def print_repository_revisions(repository_revisions)
-        puts "Repository revisions\n"
-        puts "--------------------\n"
+      def client_versions_to_string(client_versions)
+        result =  "Client versions\n"
+        result += "---------------\n"
 
-        repository_revisions.each do |repository, revision|
-          puts "#{repository}: #{revision}\n"
+        client_versions.each do |client, version|
+          result += "#{client}: #{version}\n"
         end
-      end
 
-      def print_log_files_result(log_files_results)
-        puts "Log files\n"
-        puts "---------\n"
-
-        if log_files_results.nil?
-          puts "Sorry, no log files fetched.\n"
-        else
-          log_files_results.each do |filename, log_file_results|
-            puts "#{filename}\n"
-            log_file_results.each do |result|
-              puts "#{result}\n"
-            end
-            puts "\n\n\n"
-          end
-        end
+        result
       end
 
       def fetch_repository_revisions(vm)
@@ -136,6 +110,17 @@ module VagrantPlugins
         vm.config.vagrant_logs.repositories_to_check.each do |repository|
           # TODO Handle errors
           result[repository] = `(cd #{repository} && git rev-parse HEAD)`
+        end
+
+        result
+      end
+
+      def repository_revisions_to_string(repository_revisions)
+        result =  "Repository revisions\n"
+        result += "--------------------\n"
+
+        repository_revisions.each do |repository, revision|
+          result += "#{repository}: #{revision}\n"
         end
 
         result
@@ -152,6 +137,26 @@ module VagrantPlugins
         end
 
         !result.include?('no servers could be reached')
+      end
+
+      def dns_resolution_result_to_string(dns_resolution)
+        result =  "DNS resolution\n"
+        result += "--------------\n"
+
+        if dns_resolution
+          result += "Fine, works.\n"
+        else
+          result += "Doesn't seem to work.\n"
+        end
+
+        result
+      end
+
+      def result_to_string(result)
+        repository_revisions_to_string(result[:repository_revisions]) +
+        client_versions_to_string(result[:client_versions]) +
+        dns_resolution_result_to_string(result[:dns_resolution]) +
+        log_files_result_to_string(result[:log_files])
       end
     end
   end
