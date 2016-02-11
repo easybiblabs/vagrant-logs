@@ -68,7 +68,7 @@ module VagrantPlugins
         result += "---------\n"
 
         if log_files_results.nil?
-          result += "Sorry, no log files fetched.\n"
+          result += "None fetched.\n"
         else
           log_files_results.each do |filename, log_file_results|
             result += "#{filename}\n"
@@ -79,7 +79,7 @@ module VagrantPlugins
           end
         end
 
-        result
+        result + "\n"
       end
 
       def fetch_client_versions(vm)
@@ -97,11 +97,15 @@ module VagrantPlugins
         result =  "Client versions\n"
         result += "---------------\n"
 
-        client_versions.each do |client, version|
-          result += "#{client}: #{version}\n"
+        if !client_versions.nil? and client_versions.any?
+          client_versions.each do |client, version|
+            result += "#{client}: #{version}\n"
+          end
+        else
+          result += "None checked.\n"
         end
 
-        result
+        result + "\n"
       end
 
       def fetch_repository_revisions(vm)
@@ -119,11 +123,15 @@ module VagrantPlugins
         result =  "Repository revisions\n"
         result += "--------------------\n"
 
-        repository_revisions.each do |repository, revision|
-          result += "#{repository}: #{revision}\n"
+        if !repository_revisions.nil? and repository_revisions.any?
+          repository_revisions.each do |repository, revision|
+            result += "#{repository}: #{revision}\n"
+          end
+        else
+          result += "None checked.\n"
         end
 
-        result
+        result + "\n"
       end
 
       def fetch_dns_resolution_check(vm)
@@ -143,13 +151,15 @@ module VagrantPlugins
         result =  "DNS resolution\n"
         result += "--------------\n"
 
-        if dns_resolution
+        if dns_resolution == true
           result += "Fine, works.\n"
-        else
+        elsif dns_resolution == false
           result += "Doesn't seem to work.\n"
+        else
+          result += "Not checked.\n"
         end
 
-        result
+        result + "\n"
       end
 
       def result_to_string(result)
