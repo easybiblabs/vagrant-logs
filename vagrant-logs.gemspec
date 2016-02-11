@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'vagrant-logs'
   spec.version       = VagrantPlugins::CommandLogs::VERSION
   spec.platform		   = Gem::Platform::RUBY
-  spec.authors       = %w('seppsepp', 'fh')
+  spec.authors       = %w(seppsepp fh)
   spec.email         = ['sebastian.lenk@gmail.com']
   spec.description   = 'A RubyGem to print log files and/or upload them to a Gist'
   spec.summary       = 'Print log files and/or upload to Gist'
