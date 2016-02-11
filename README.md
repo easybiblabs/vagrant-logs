@@ -20,6 +20,14 @@ Do not use this command in a directory with a Vagrantfile which requires the plu
 
 ## Usage
 
+### Gist upload
+
+Upload to Gist can be activated by setting environment variable `GIST_UPLOAD`, e.g.:
+
+`GIST_UPLOAD=true vagrant logs`
+
+`GITHUB_TOKEN` must also be set as an environment variable.
+
 ### Vagrantfile
 
 In your `Vagrantfile`:

@@ -1,3 +1,6 @@
+require 'gist'
+
+
 module VagrantPlugins
   module CommandLogs
     class Command < Vagrant.plugin('2', :command)
@@ -9,15 +12,21 @@ module VagrantPlugins
         result = {}
 
         with_target_vms(@argv, single_target: true) do |vm|
-          prepare_log_file_names(vm)
-          result[:log_files] = fetch_log_files(vm)
-
-          result[:repository_revisions] = fetch_repository_revisions(vm)
-          result[:client_versions] = fetch_client_versions(vm)
-          result[:dns_resolution] = fetch_dns_resolution_check(vm)
+          # prepare_log_file_names(vm)
+          # result[:log_files] = fetch_log_files(vm)
+          #
+          # result[:repository_revisions] = fetch_repository_revisions(vm)
+          # result[:client_versions] = fetch_client_versions(vm)
+          # result[:dns_resolution] = fetch_dns_resolution_check(vm)
         end
 
-        print result_to_string(result)
+        result_as_string = result_to_string(result)
+
+        print result_as_string
+
+        if ENV['GIST_UPLOAD']
+          upload_to_gist(result_as_string, ENV['GITHUB_TOKEN'])
+        end
 
         return 0
       end
@@ -167,6 +176,25 @@ module VagrantPlugins
         client_versions_to_string(result[:client_versions]) +
         dns_resolution_result_to_string(result[:dns_resolution]) +
         log_files_result_to_string(result[:log_files])
+      end
+
+      def upload_to_gist(result, access_token)
+        puts "Gist upload\n"
+        puts "-----------\n"
+
+        if access_token.nil? or access_token.empty?
+          puts "Access token is missing (ENV['GITHUB_TOKEN']).\n"
+        else
+          gist = Gist.gist(result, filename: Time.now.to_i.to_s, access_token: access_token)
+
+          if gist
+            puts "Url: #{gist['html_url']}\n"
+          else
+            puts "Upload failed.\n"
+          end
+        end
+
+        puts "\n"
       end
     end
   end
