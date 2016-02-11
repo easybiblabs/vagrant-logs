@@ -12,12 +12,12 @@ module VagrantPlugins
         result = {}
 
         with_target_vms(@argv, single_target: true) do |vm|
-          # prepare_log_file_names(vm)
-          # result[:log_files] = fetch_log_files(vm)
-          #
-          # result[:repository_revisions] = fetch_repository_revisions(vm)
-          # result[:client_versions] = fetch_client_versions(vm)
-          # result[:dns_resolution] = fetch_dns_resolution_check(vm)
+          prepare_log_file_names(vm)
+          result[:log_files] = fetch_log_files(vm)
+
+          result[:repository_revisions] = fetch_repository_revisions(vm)
+          result[:client_versions] = fetch_client_versions(vm)
+          result[:dns_resolution] = fetch_dns_resolution_check(vm)
         end
 
         result_as_string = result_to_string(result)
@@ -39,14 +39,18 @@ module VagrantPlugins
       end
 
       def expand_log_file_names(log_files, vm)
+        puts "Expand files names: "
+
         expanded_file_names = []
 
         log_files.delete_if do |log_file|
           if log_file.include?('*')
-            # TODO Handle errors
             vm.communicate.sudo("ls -1 #{log_file}") do |type, data|
-              if type == :stdout
+              case type
+              when :stdout
                 expanded_file_names << data.split(/[\r\n]+/)
+              when :stderr
+                puts data and exit 1
               end
             end
 
@@ -54,20 +58,27 @@ module VagrantPlugins
           end
         end
 
+        puts "Ok\n"
+
         (log_files + expanded_file_names).flatten
       end
 
       def fetch_log_files(vm)
+        puts "Fetch log files: "
         result = {}
 
         vm.config.vagrant_logs.log_files.each do |log_file|
-          # TODO Handle errors
           vm.communicate.sudo("tail -#{vm.config.vagrant_logs.lines} #{log_file}") do |type, data|
-            if type == :stdout
+            case type
+            when :stdout
               result[log_file] = data.split(/[\r\n]+/)
+            when :stderr
+              puts data and exit 1
             end
           end
         end
+
+        puts "Ok\n"
 
         result
       end
@@ -95,7 +106,6 @@ module VagrantPlugins
         result = {}
 
         vm.config.vagrant_logs.clients_to_check.each do |client|
-          # TODO Handle errors
           result[client] = `#{client} -v`
         end
 
@@ -121,7 +131,6 @@ module VagrantPlugins
         result = {}
 
         vm.config.vagrant_logs.repositories_to_check.each do |repository|
-          # TODO Handle errors
           result[repository] = `(cd #{repository} && git rev-parse HEAD)`
         end
 
@@ -144,14 +153,20 @@ module VagrantPlugins
       end
 
       def fetch_dns_resolution_check(vm)
-        result = false
+        puts "DNS resolution check: "
 
-        # TODO Handle errors
+        result = ''
+
         vm.communicate.sudo("host -t ns google.com") do |type, data|
-          if type == :stdout
+          case type
+          when :stdout
             result = data
+          when :stderr
+            puts data and exit 1
           end
         end
+
+        puts "Ok\n"
 
         !result.include?('no servers could be reached')
       end
