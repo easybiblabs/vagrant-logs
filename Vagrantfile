@@ -5,6 +5,6 @@ Vagrant.configure('2') do |config|
 
   config.vagrant_logs.log_files = ['/var/log/*log']
   config.vagrant_logs.lines = 5
-  config.vagrant_logs.repositories_to_check = ['~/Sites/easybib/cookbooks', '~/projects/ies/vagrant-logs']
+  # config.vagrant_logs.repositories_to_check = ['~/Sites/easybib/cookbooks']
   config.vagrant_logs.clients_to_check = ['vagrant', 'VBoxManage']
 end
