@@ -45,20 +45,24 @@ module VagrantPlugins
 
         log_files.delete_if do |log_file|
           if log_file.include?('*')
-            vm.communicate.sudo("ls -1 #{log_file}") do |type, data|
-              case type
-              when :stdout
-                expanded_file_names << data.split(/[\r\n]+/)
-              when :stderr
-                puts data and exit 1
+            begin
+              vm.communicate.sudo("ls -1 #{log_file}") do |type, data|
+                case type
+                when :stdout
+                  expanded_file_names << data.split(/[\r\n]+/)
+                when :stderr
+                  puts data and exit 1
+                end
               end
+            rescue Vagrant::Errors::VagrantError => e
+              print_sudo_exception(e)
             end
 
             true
           end
         end
 
-        puts "Ok\n"
+        puts "Done\n"
 
         (log_files + expanded_file_names).flatten
       end
@@ -68,17 +72,21 @@ module VagrantPlugins
         result = {}
 
         vm.config.vagrant_logs.log_files.each do |log_file|
-          vm.communicate.sudo("tail -#{vm.config.vagrant_logs.lines} #{log_file}") do |type, data|
-            case type
-            when :stdout
-              result[log_file] = data.split(/[\r\n]+/)
-            when :stderr
-              puts data and exit 1
+          begin
+            vm.communicate.sudo("tail -#{vm.config.vagrant_logs.lines} #{log_file}") do |type, data|
+              case type
+              when :stdout
+                result[log_file] = data.split(/[\r\n]+/)
+              when :stderr
+                puts data and exit 1
+              end
             end
+          rescue Vagrant::Errors::VagrantError => e
+            print_sudo_exception(e)
           end
         end
 
-        puts "Ok\n"
+        puts "Done\n"
 
         result
       end
@@ -157,16 +165,21 @@ module VagrantPlugins
 
         result = ''
 
-        vm.communicate.sudo("host -t ns google.com") do |type, data|
-          case type
-          when :stdout
-            result = data
-          when :stderr
-            puts data and exit 1
+        begin
+          vm.communicate.sudo("host -t ns google.com") do |type, data|
+            case type
+            when :stdout
+              result = data
+            when :stderr
+              puts data and exit 1
+            end
           end
-        end
 
-        puts "Ok\n"
+          puts "Ok\n"
+        rescue Vagrant::Errors::VagrantError => e
+          print("Failed\n")
+          print_sudo_exception(e)
+        end
 
         !result.include?('no servers could be reached')
       end
@@ -210,6 +223,11 @@ module VagrantPlugins
         end
 
         puts "\n"
+      end
+
+      def print_sudo_exception(exception)
+        puts "Following error occured, but will be ignored:\n"
+        puts exception.message
       end
     end
   end
