@@ -1,9 +1,8 @@
 # VagrantLogs
 
 [![Build Status](https://travis-ci.org/easybiblabs/vagrant-logs.png?branch=master)](https://travis-ci.org/easybiblabs/vagrant-logs)
-[![Coverage Status](https://coveralls.io/repos/easybiblabs/vagrant-status/badge.png)](https://coveralls.io/r/easybiblabs/vagrant-logs)
 
-This is a work in progress - and subject to [additions and changes](CONTRIBUTING.md).
+This is subject to [additions and changes](CONTRIBUTING.md).
 
 ## Objective
 
@@ -19,6 +18,11 @@ Install the plugin:
 Do not use this command in a directory with a Vagrantfile which requires the plugin. Vagrant does _always_ include the Vagrantfile, and therefore will fail before installation because of the missing plugin. Just ```cd``` somewhere else and retry the command, maybe from your homedir?
 
 ## Usage
+
+This plugin does not have any parameters - its sole use case is to output various debugging info. Sources of the debug data is specified in `Vagrantfile`, see example below.
+
+### Standard usage
+`vagrant logs` outputs all log info in the terminal.
 
 ### Gist upload
 
@@ -43,6 +47,7 @@ Vagrant.configure("2") do |config|
   config.vagrant_logs.lines = 5
 
   # list of locally checked out repositories for which the current revision should be logged
+  # defaults to `cookbook_path` from [bib-vagrant](https://github.com/easybiblabs/bib-vagrant)
   config.vagrant_logs.repositories_to_check = ['~/Sites/easybib/cookbooks', '~/projects/ies/vagrant-logs']
 
   # list of locally available clients to check for their versions
