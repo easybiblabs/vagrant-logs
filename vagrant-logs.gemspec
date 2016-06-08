@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'A RubyGem to print log files and/or upload them to a Gist'
   spec.summary       = 'Print log files and/or upload to Gist'
   spec.homepage      = 'https://github.com/easybiblabs/vagrant-logs'
-  spec.license       = 'New BSD License'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
